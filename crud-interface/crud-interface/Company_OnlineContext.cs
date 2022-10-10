@@ -193,6 +193,7 @@ namespace crud_interface
                 entity.HasOne(d => d.DnumNavigation)
                     .WithMany(p => p.Projects)
                     .HasForeignKey(d => d.Dnum)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Project_Department");
             });
 

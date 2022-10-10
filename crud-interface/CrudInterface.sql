@@ -97,11 +97,22 @@ CREATE PROCEDURE usp_DeleteDepartment
 	@DNumber int
 AS
 	DELETE FROM Dept_Locations WHERE DNUmber = @DNumber;
-	DELETE FROM Works_on WHERE Pno = ALL(
-		SELECT PNumber FROM Project WHERE DNum = @DNumber
-	);
-	DELETE FROM Project WHERE DNum = @DNumber;
 	UPDATE Employee SET Dno = NULL WHERE Dno = @DNumber;
+
+	DECLARE @Pno int;
+	DECLARE p_cursor CURSOR  
+    FOR SELECT PNumber FROM Project WHERE DNum = @DNumber
+	OPEN p_cursor  
+	FETCH NEXT FROM p_cursor INTO @Pno;  
+	WHILE @@FETCH_STATUS = 0  
+	BEGIN   
+		DELETE FROM Works_on WHERE Pno = @Pno;
+	FETCH NEXT FROM p_cursor INTO @Pno;  
+	END    
+	CLOSE p_cursor;  
+	DEALLOCATE p_cursor;
+	
+	DELETE FROM Project WHERE DNum = @DNumber;
 	DELETE FROM Department WHERE DNumber = @DNumber;
 GO
 
